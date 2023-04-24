@@ -1,0 +1,20 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Catégorie
+{% endblock %}
+
+{% block body %}
+	<h1>Catégorie :
+		{{ category.name }}</h1>
+
+	<ul>
+		{% for article in category.articles %}
+			<li>
+				<a href="{{ path('article_item', { id: article.id }) }}">{{ article.title }}</a>
+				-
+				{{ article.dateCreated|date("d/m/Y") }}
+			</li>
+		{% endfor %}
+	</ul>
+{% endblock %}
+
