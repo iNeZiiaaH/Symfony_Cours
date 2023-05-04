@@ -4,20 +4,18 @@ namespace App\Controller;
 
 use App\Entity\Newsletter;
 use App\Form\NewsletterType;
+use App\Mail\Newsletter\SubscribedConfirmation;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\String\ByteString;
 
 class NewsletterController extends AbstractController
 {
     #[Route('/newsletter/subscribe', name: 'newsletter_subscribe')]
-    public function subscribe(Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
+    public function subscribe(Request $request, EntityManagerInterface $em, SubscribedConfirmation $emailConfirmation): Response
     {
         $newsletter = new Newsletter();
         $form = $this->createForm(NewsletterType::class, $newsletter);
@@ -29,17 +27,12 @@ class NewsletterController extends AbstractController
 
             $em->persist($newsletter);
             $em->flush();
-            $email = (new Email())
-                ->from('admin@hb-corp.com')
-                ->to($newsletter->getEmail())
-                ->subject('Inscription à la newsletter')
-                ->text($this->generateUrl(
-                    'newsletter_confirm',
-                    ['token' => $newsletter->getToken()],
-                    UrlGeneratorInterface::ABSOLUTE_URL
-                ));
 
-            $mailer->send($email);
+            $emailConfirmation->sendTo($newsletter);
+
+            $this->addFlash('success', 'Votre inscription a été prise en compte, un email de confirmation vous a été envoyé');
+
+            return $this->redirectToRoute('app_index');
         }
         return $this->renderForm('newsletter/subscribe.html.twig', [
             'form' => $form
@@ -52,8 +45,9 @@ class NewsletterController extends AbstractController
         $newsletter
             ->setActive(true)
             ->setToken(null);
-
         $em->flush();
+
+        $this->addFlash('success', 'Verification réussie, vous avez été bien inscrit');
 
         return $this->redirectToRoute('app_index');
     }
