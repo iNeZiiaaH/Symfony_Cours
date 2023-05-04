@@ -23,20 +23,20 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create();
-
+        $users = [];
         $regularUser = new User();
         $regularUser
             ->setEmail("bob@bob.com")
             ->setPassword($this->hasher->hashPassword($regularUser, 'test'));
 
         $manager->persist($regularUser);
-
+        $users[] = $regularUser;
         $adminUser = new User();
         $adminUser
             ->setEmail("admin@domain.com")
             ->setRoles(["ROLE_ADMIN"])
             ->setPassword($this->hasher->hashPassword($adminUser, 'test'));
-
+        $users[] = $adminUser;
         $manager->persist($adminUser);
 
         for ($i = 0, $categories = []; $i < self::NB_CATEGORIES; $i++) {
@@ -57,7 +57,8 @@ class AppFixtures extends Fixture
                 ->setDateCreated($faker->dateTimeBetween('-2 years'))
                 ->setVisible($faker->boolean(80))
                 ->setContent($faker->paragraphs(6, true))
-                ->setCategory($faker->randomElement($categories));
+                ->setCategory($faker->randomElement($categories))
+                ->setUser($faker->randomElement($users));
 
             $manager->persist($article);
         }

@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\ArticleRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -32,17 +30,9 @@ class Article
     #[ORM\JoinColumn(nullable: false)]
     private ?Category $category = null;
 
-    #[ORM\OneToMany(mappedBy: 'articles', targetEntity: User::class)]
-    private Collection $Author;
-
     #[ORM\ManyToOne(inversedBy: 'articles')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $User = null;
-
-    public function __construct()
-    {
-        $this->Author = new ArrayCollection();
-    }
+    private ?User $user = null;
 
     public function getId(): ?int
     {
@@ -111,12 +101,12 @@ class Article
 
     public function getUser(): ?User
     {
-        return $this->User;
+        return $this->user;
     }
 
-    public function setUser(?User $User): self
+    public function setUser(?User $user): self
     {
-        $this->User = $User;
+        $this->user = $user;
 
         return $this;
     }
