@@ -27,7 +27,7 @@ class AppFixtures extends Fixture
         $regularUser = new User();
         $regularUser
             ->setEmail("bob@bob.com")
-            ->setPassword($this->hasher->hashPassword($regularUser, 'test'));
+            ->setPassword('test');
 
         $manager->persist($regularUser);
         $users[] = $regularUser;
@@ -35,7 +35,7 @@ class AppFixtures extends Fixture
         $adminUser
             ->setEmail("admin@domain.com")
             ->setRoles(["ROLE_ADMIN"])
-            ->setPassword($this->hasher->hashPassword($adminUser, 'test'));
+            ->setPassword('test');
         $users[] = $adminUser;
         $manager->persist($adminUser);
 
